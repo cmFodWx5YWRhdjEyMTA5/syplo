@@ -147,5 +147,26 @@ class Freelancer_model extends CI_Model
         return $this->db->get_where('workarea',array('user_id'=>$user_id))->result();
        
     }
+
+    public function service_level($user_id)
+    {
+        $level= $this->db->get_where('order',array('approve_status'=>1,'provider_id'=>$user_id,'order_status'=>1))->num_rows();
+        if($level<500)
+        {
+            $levels ='Bronze';
+        }
+        elseif($level>=500 && $level<1000)
+        {
+            $levels ='Silver';
+        }
+        else
+        {
+            $levels ='Gold';
+        }
+        $data['complete'] = $level;
+        $data['rank']     = $levels;
+        return $data;
+
+    }
 	
 }	

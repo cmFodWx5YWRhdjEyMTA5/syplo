@@ -44,6 +44,7 @@
                                             <th>User image</th>
                                             <th>Email</th>
                                             <th>Mobile No.</th>
+                                            <th>Rank / Complete Services</th>
                                             <th>WorkArea Address</th>
                                             <th>Offer Services</th>
                                             <th>Another Services</th>
@@ -54,14 +55,21 @@
                                         <tbody>
                                         <?php
                                           $i=1;  
-                                        foreach($userlist as $list) { ?>
+                                        foreach($userlist as $list) { 
+                                               ?>
                                             <tr>
                                                 <td><?php echo $i++;?></td>
                                                 <td><?php echo $list->first_name;?></td>
                                                 <td><?php echo $list->last_name;?></td>
                                                 <td><?php echo "<img src=".base_url()."upload/".$list->user_image." width='60px' height='60px'>";?></td>
-                                                 <td><?php echo $list->email;?></td>
-                                                 <td><?php echo $list->mobile;?></td>
+                                                <td><?php echo $list->email;?></td>
+                                                <td><?php echo $list->mobile;?></td>
+
+                                                <td style="color:red; font-weight:bold;"><?php foreach ($rankData as $rank => $r ) {
+                                                    if($r['user_id']==$list->id){
+                                                    echo $r['rank'].'<strong> ('.$r['complete'].')</strong>';}}?> 
+                                                 </td>  
+                                                
                                                  <td><a href="<?php echo site_url('admin/Freelancer/WorkArea?id='.$list->id); ?>">WorkArea</a></td>
                                                  <td><a href="<?php echo site_url('admin/Freelancer/services?id='.$list->id); ?>">Services</a></td>
                                                  <td><a href="<?php echo site_url('admin/Freelancer/anotherservices?id='.$list->id); ?>">Another Services</a></td>

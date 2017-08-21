@@ -298,8 +298,8 @@ class Testing extends CI_Controller
 	    	{ 
 	    		$WorkPerformUserId = $this->Test1_model->checkOrderTime($WorkPerformUserId,$date,$time);
 	    		
-	    		$WorkPerformUserId = $this->Order_model->checkPosition($WorkPerformUserId,$date,$time);
-	    		//print_r($WorkPerformUserId);die();
+	    		//$WorkPerformUserId = $this->Order_model->checkPosition($WorkPerformUserId,$date,$time);
+	    		print_r($WorkPerformUserId);die();
 
 	    		$res = $this->Test1_model->search($time,$addLat,$addLng,$addresstype,$WorkPerformUserId); 
 	    		$d='';	    		
@@ -754,12 +754,28 @@ class Testing extends CI_Controller
 	}
 
 	public function checkSms()
-	{	
-		$order_id     = 15;	
-		$smsMessage   = "Your order id ".$order_id." has been accepted.";
+	{	//Content-Type: application/json; charset=ISO-8859-4
+		//header('charset=ISO-8859-4');
+		$order_id   = 15;	
+		$Message    = 'Du har fått ett nytt omdöme, gå in på Syplo appen för att se ditt omdöme.';
+		$smsMessage = $this->checkencoding($Message);
+		//print_r($smsMessage);die();
+		//$smsMessage = iconv('UTF-8','UTF-8//IGNORE',$Message);
+		//print_r($mm);die();
 		$customer_id  = 25;
 		$this->Test1_model->sendSms($smsMessage,$customer_id);//For customer
 	}
+
+	function checkencoding($text)
+	{
+		$enc = mb_detect_encoding($text, "UTF-8,ISO-8859-1");
+
+		echo 'Detected encoding '.$enc."<br />";
+
+		return iconv($enc, "UTF-8", $text);
+	}
+
+	
 
 	public function service_request_listPrevious()
 	{
@@ -1067,7 +1083,7 @@ class Testing extends CI_Controller
         $data->payment_detail = $payment_detail;
         $data->details  = $details;
 
-        $this->load->view('NewFinalOrderBill',$data);
+        $this->load->view('NewOrderBill',$data);
 
     }
 
@@ -1135,6 +1151,7 @@ class Testing extends CI_Controller
     		echo json_encode($response);
 		}
   	}
+
 
 }
 ?>

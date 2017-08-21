@@ -8,9 +8,6 @@
                                 <div class="panel-heading">
                                     <h3 class="panel-title"><strong>Update Commission</strong></h3>
 
-                            <ul class="panel-controls">
-                                        <li><a href="#" class="panel-remove"><span class="fa fa-times"></span></a></li>
-                                    </ul>
                                 </div>
                         <div class="container">  
                                     

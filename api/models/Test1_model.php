@@ -12,6 +12,50 @@ class Test1_model extends CI_Model
         $count= $this->db->get_where('review', array('order_id'=>$order_id,'customer_id'=>$giver_id))->num_rows();
         print_r($count);die();
     }
+
+    public function CustomerReview($provider_id)
+    {
+        $this->db->select('id,customer_id,rating');
+        $this->db->from('review');
+        $this->db->where(array('provider_id'=>$provider_id,'rating!='=>-1));
+        $this->db->order_by('id','DESC');
+        $idd = $this->db->get()->result();
+        $Cust_review=[];
+        //print_r($idd);die();
+        if(!empty($idd))
+        {
+            foreach ($idd as $k => $idv) 
+            {
+                $this->db->select('review.*,registration.first_name,last_name,user_image');
+                $this->db->from('review');
+                $this->db->join('registration','review.customer_id=registration.id');
+                $this->db->where(array('registration.id'=>$idv->customer_id,'review.id'=>$idv->id));      
+                $res_data = $this->db->get()->row();
+                if($res_data!='')
+                {
+                    $res_da=array(
+                        "id"=> $res_data->id ,
+                        "customer_id"=> $res_data->customer_id,
+                        "provider_id"=>$res_data->provider_id,
+                        "rating"=> $res_data->rating,
+                        "comment"=> $res_data->comment,
+                        "creat_at"=> $res_data->creat_at,
+                        "first_name"=> $res_data->first_name,
+                        "last_name"=> $res_data->last_name,
+                        "user_image"=>base_url().'upload/'.$res_data->user_image
+                    );
+                    $Cust_review[]=$res_da;  
+                }  
+            }
+            //echo json_encode($Cust_review);die();
+            return $Cust_review;
+        }
+        else
+        {
+            return $Cust_review;
+        }
+    }
+
     public function UserAreaSearch($services_id,$another)
     {   
         $match=0;
@@ -129,14 +173,22 @@ class Test1_model extends CI_Model
             $this->db->select('*');
             $this->db->from('order');
             $this->db->where(array('provider_id'=>$Ids[$i],'date'=>$date,'approve_status'=>1,'order_status'=>0));
-            $cc =$this->db->get();
-            $c= $cc->num_rows();
+            $cc = $this->db->get();
+            $c  = $cc->num_rows();
             if($c>0)
             {
+                $order   = $date.' '.$times; //Request order time
+                $orderAt= strtotime($order); 
                 $da = $cc->row();
-                $otime=$da->time;
-                if($otime<$times)
-                { unset($Ids[$i]);}
+                $otime=$da->time;  //already booking time at given date                
+                $alreadyDate =  $da->date;
+                $alreadyTime =  $da->time;
+                $alreadyBookTime = $alreadyDate.' '.$alreadyTime;
+                $AfterTime = strtotime('+2 hours',strtotime($alreadyBookTime));
+                $BeforeTime = strtotime('-2 hours',strtotime($alreadyBookTime));
+                if($orderAt>=$BeforeTime && $orderAt<=$AfterTime)
+                //if($otime<$times)
+                { $Ids[$i]=0;}
             }
         }
         return $Ids;

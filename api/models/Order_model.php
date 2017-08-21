@@ -116,6 +116,37 @@ class Order_model extends CI_Model
     //Check Provider is not book at given date and time Start
     public function checkOrderTime($Ids,$date,$times)
     {
+        //print_r($Ids);die();
+        $countId = count($Ids);
+        for($i=0; $i<$countId; $i++)
+        {
+            $this->db->select('*');
+            $this->db->from('order');
+            $this->db->where(array('provider_id'=>$Ids[$i],'date'=>$date,'approve_status'=>1,'order_status'=>0));
+            $cc = $this->db->get();
+            $c  = $cc->num_rows();
+            if($c>0)
+            {
+                $order   = $date.' '.$times; //Request order time
+                $orderAt= strtotime($order); 
+                $da = $cc->row();
+                $otime=$da->time;  //already booking time at given date                
+                $alreadyDate =  $da->date;
+                $alreadyTime =  $da->time;
+                $alreadyBookTime = $alreadyDate.' '.$alreadyTime;
+                $AfterTime = strtotime('+2 hours',strtotime($alreadyBookTime));
+                $BeforeTime = strtotime('-2 hours',strtotime($alreadyBookTime));
+                if($orderAt>=$BeforeTime && $orderAt<=$AfterTime)
+                //if($otime<$times)
+                { $Ids[$i]=0;}
+            }
+        }
+        return $Ids;
+    }
+
+
+    /*public function checkOrderTime($Ids,$date,$times)
+    {
         $countId = count($Ids);
         for($i=0; $i<$countId; $i++)
         {
@@ -133,7 +164,7 @@ class Order_model extends CI_Model
             }
         }        
         return $Ids;
-    }
+    }*/
     //Check Provider is not book at given date and time End
 
     //Check Provider that he is not off show position at this date and time Start
@@ -194,7 +225,7 @@ class Order_model extends CI_Model
                     $this->db->join('workarea','workarea.user_id=registration.id');
                     $this->db->where(array('registration.id'=>$WorkPerformUserId[$w],'registration.approve_status='=>1));
                     $this->db->where($where);
-                    $this->db->having('distance <= ',5);  
+                    $this->db->having('distance <= ',2);  
                     $this->db->order_by('distance');
                     $res=$this->db->get()->row();
                     if(!empty($res))
@@ -300,10 +331,10 @@ class Order_model extends CI_Model
             return $this->db->get_where('order_payment',array('id'=>$id))->row();
         }
     } 
-    public function updateDiscountStatus($discount_id,$taken_timestamp)
+    public function updateDiscountStatus($discount_id,$taken_timestamp,$order_id)
     {
         $this->db->where('id',$discount_id);
-        $this->db->update('user_discount',array('status'=>1,'taken_timestamp'=>$taken_timestamp));
+        $this->db->update('user_discount',array('status'=>1,'taken_timestamp'=>$taken_timestamp,'order_id'=>$order_id));
     }
 
             /* service_request_list function */
@@ -464,6 +495,7 @@ class Order_model extends CI_Model
         $this->db->where(array('customer_id'=>$user_id,'order_status'=>0));
         $this->db->where($where);
         $this->db->from('order');
+        $this->db->order_by('id','DESC');
         $order=$this->db->get()->result();
         //echo json_encode($order);die();
         return $order;
@@ -486,6 +518,7 @@ class Order_model extends CI_Model
 	
 	public function order_history($user_id)
 	{
+        $this->db->order_by('id','DESC');
 		return $order=$this->db->get_where('order',array('customer_id'=>$user_id,'order_status'=>'1'))->result();
 	}
 

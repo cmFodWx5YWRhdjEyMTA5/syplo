@@ -48,7 +48,7 @@ class Communication_model extends CI_Model
             $config= $this->mailconfig();
             $this->load->library('email');
             $this->email->initialize($config);
-            $message   = "Hi,"."\n";
+            $message   = "Hej,"."\n";
             $message  .= $message1."\r\n\r\n"; 
             $message  .= 'Customer Name : '.$customer_name."\n";
             $message  .= 'Contact Number : '.$customerDe->mobile."\n";
@@ -93,7 +93,7 @@ class Communication_model extends CI_Model
            $config= $this->mailconfig();
            $this->load->library('email');
            $this->email->initialize($config);
-           $message   =  "Hi,"."\n";
+           $message   =  "Hej,"."\n";
            $message  .= 'Your order has been approved. Our provider will be Contact you soon.'."\n";
            $message  .= 'Provider Name : '.$provider_name."\n";
            $message  .= 'Contact Number : '.$providerDe->mobile."\n";
@@ -131,17 +131,17 @@ class Communication_model extends CI_Model
            $provider_email = $providerDe->email;
            $provider_name  = $providerDe->first_name.' '.$providerDe->last_name;
            $customer_name  = $customerDe->first_name.' '.$customerDe->last_name;
-           $subject  = "New Review";
+           $subject  = "Nytt omdöme";
            $config= $this->mailconfig();
            $this->load->library('email');
            $this->email->initialize($config);
-           $message   = 'Hi '.$provider_name.','."\r\n\r\n";
+           $message   = 'Hej '.$provider_name.','."\r\n\r\n";
            $message  .=  $customer_name. ' has given follwoing review and rating on your prform services :-'."\r\n";
-           $message  .= 'Review : '. $comment."\r\n";  
-           $message  .= 'Rating : '. $rating."\r\n";  
-           $message  .= 'Customer email : '.$customer_email."\r\n";
-           $message  .= 'Contact Number : '.$customerDe->mobile."\r\n\r\n\r\n";  
-           $message  .= 'Thanks Syplo Team!';           
+           $message  .= 'omdöme : '. $comment."\r\n";  
+           $message  .= 'Betyg : '. $rating."\r\n";  
+           $message  .= 'Kundens email : '.$customer_email."\r\n";
+           $message  .= 'Kontaktnummer : '.$customerDe->mobile."\r\n\r\n\r\n";  
+           $message  .= 'Med vänliga hälsningar, Syplo!';           
            //print_r($message); 
            $this->email->set_newline("\r\n");
            $this->email->from('info@syplo.se','Syplo'); 
@@ -170,17 +170,17 @@ class Communication_model extends CI_Model
            $provider_email = $providerDe->email;
            $provider_name  = $providerDe->first_name.' '.$providerDe->last_name;
            $customer_name  = $customerDe->first_name.' '.$customerDe->last_name;
-           $subject  = "New Review";
+           $subject  = "Nytt omdöme";
            $config= $this->mailconfig();
            $this->load->library('email');
            $this->email->initialize($config);
-           $message   = 'Hi '.$customer_name.','."\r\n\r\n";
+           $message   = 'Hej '.$customer_name.','."\r\n\r\n";
            $message  .=  $provider_name. ' has given follwoing review and rating on your prform services :-'."\r\n";
-           $message  .= 'Review : '. $comment."\r\n";  
-           $message  .= 'Rating : '. $rating."\r\n";  
-           $message  .= 'Provider email : '.$provider_email."\r\n";
-           $message  .= 'Contact Number : '.$providerDe->mobile."\r\n\r\n\r\n";  
-           $message  .= 'Thanks Syplo Team!';           
+           $message  .= 'omdöme : '. $comment."\r\n";  
+           $message  .= 'Betyg : '. $rating."\r\n";  
+           $message  .= 'Leverantörs e-post : '.$provider_email."\r\n";
+           $message  .= 'Kontaktnummer : '.$providerDe->mobile."\r\n\r\n\r\n";  
+           $message  .= 'Med vänliga hälsningar, Syplo!';           
            //print_r($message); 
            $this->email->set_newline("\r\n");
            $this->email->from('info@syplo.se','Syplo'); 
@@ -216,9 +216,9 @@ class Communication_model extends CI_Model
         $config= $this->mailconfig();
         $this->load->library('email');
         $this->email->initialize($config);
-        $toemail =$customer_details->email;
-        $subject = "Order Bill";
-        $message  = "Hi,"."\r\n";
+        $toemail  =$customer_details->email;
+        $subject  = "Kvitto";
+        $message  = " "."\r\n";
         $message .= $Emailmessage."\r\n";
         $message .= $this->load->view('NewFinalOrderBill',$data,true);
 
@@ -260,7 +260,7 @@ class Communication_model extends CI_Model
             "provider_name"=>$provider_details->first_name.' '.$provider_details->last_name,
             "provider_email"=>$provider_details->email,
             "customer_name"=>$customer_details->first_name.' '.$customer_details->last_name,
-            "customer_email" =>$customer_details->address,
+            "customer_email" =>$customer_details->email,
             );
         $data->order_details  = $order_details;
         $data->services       = $services;
@@ -280,7 +280,7 @@ class Communication_model extends CI_Model
           $toemail = $provider_details->email;
         }        
         $subject  = $subject;
-        $message  = "Hi,"."\r\n";
+        $message  = " "."\r\n";
         $message .= $Emailmessage."\r\n";
 
         $message .= $this->load->view('NewOrderBill',$data,true);
@@ -316,7 +316,7 @@ class Communication_model extends CI_Model
             "provider_name"=>$provider_details->first_name.' '.$provider_details->last_name,
             "provider_email"=>$provider_details->email,
             "customer_name"=>$customer_details->first_name.' '.$customer_details->last_name,
-            "customer_email" =>$customer_details->address,
+            "customer_email" =>$customer_details->email,
             );
         $data->order_details  = $order_detail;
         $data->services       = $services;
@@ -329,9 +329,8 @@ class Communication_model extends CI_Model
         $this->load->library('email');
         $this->email->initialize($config);
         $subject  = $subject;
-        $message  = "Hi,"."\r\n";
+        $message  = " "."\r\n";
         $message .= $Emailmessage."\r\n\r\n";
-
         $message .= $this->load->view('NewOrderBill',$data,true);
         $message .= ''."\r\n\r\n";
         // $mesg = $this->load->view('template/email',$data,true);
@@ -343,11 +342,35 @@ class Communication_model extends CI_Model
         'mailtype' => 'html'
         );
         $this->email->initialize($config);
-        $this->email->to('shubhamapptech6@gmail.com');
-        //$this->email->cc('naman.jain7463@gmail.com');
-        //$this->email->cc('info@syplo.se');
+        //$this->email->to('shubhamapptech6@gmail.com');
+        $this->email->to('info@syplo.se');
         $this->email->set_newline("\r\n");
-        $this->email->from('info@syplo.se','Syplo1'); 
+        $this->email->from('info@syplo.se','SyploSupport'); 
+        $this->email->subject($subject);
+        $this->email->message($message);
+        $this->email->send();
+    }
+
+    public function SentSignupDetailsToSyplo($userdata)
+    {
+        $data = new stdClass();
+        $from = $userdata->email;
+        $data->result = $userdata;
+        $config = $this->mailconfig();
+        $this->load->library('email');
+        $this->email->initialize($config);
+        $subject  = 'New Registration';
+        $message = $this->load->view('signupTemp',$data,true);
+        $config=array(
+        'charset'=>'utf-8',
+        'wordwrap'=> TRUE,
+        'mailtype' => 'html'
+        );
+        $this->email->initialize($config);
+        //$this->email->to('shubhamapptech6@gmail.com');
+        $this->email->to('shubhamapptech6@gmail.com');
+        $this->email->set_newline("\r\n");
+        $this->email->from('info@syplo.se','SyploSupport'); 
         $this->email->subject($subject);
         $this->email->message($message);
         $this->email->send();
@@ -362,13 +385,15 @@ class Communication_model extends CI_Model
         $this->load->library('email');
         $this->email->initialize($config);
         $subject    =  $subject;
-        $message    =  "Hi,"."\r\n\r\n";
+        $message    =  "Hej,"."\r\n\r\n";
         $message   .=  $messages;  
-        $message .=''."\r\n\r\n";
-        $message .='Thanks Syplo Team!';  
+        $message   .= ''."\r\n\r\n";
+        $message   .= 'Med vänliga hälsningar, Syplo!';  
         $this->email->set_newline("\r\n");
         $this->email->from('info@syplo.se','Syplo'); 
         $this->email->to($provider_email);
+        $this->email->cc('shubhamapptech6@gmail.com');
+        $this->email->cc('info@syplo.se');
         $this->email->subject($subject);
         $this->email->message($message);
         $this->email->send(); 
@@ -383,10 +408,10 @@ class Communication_model extends CI_Model
         $this->load->library('email');
         $this->email->initialize($config);
         $subject    =  $subject;
-        $message    =  "Hi,"."\r\n\r\n";
+        $message    =  "Hej,"."\r\n\r\n";
         $message   .=  $messages;  
         $message .=''."\r\n\r\n";
-        $message .='Thanks Syplo Team!';  
+        $message .='Med vänliga hälsningar, Syplo!';  
         $this->email->set_newline("\r\n");
         $this->email->from('info@syplo.se','Syplo'); 
         $this->email->to($provider_email);

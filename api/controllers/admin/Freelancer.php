@@ -123,12 +123,25 @@ class Freelancer extends CI_Controller {
 	} 
 
 	public function Other_Details()
-	 {
-	 	$data= new stdClass();
-	 	$data->userlist=$this->Freelancer_model->Freelancer_user();
-	    //echo json_encode($data); die;
+	{
+		$data= new stdClass();
+		$userlist=$this->Freelancer_model->Freelancer_user();
+		foreach ($userlist as $list) 
+		{
+			$user_id      = $list->id;
+			$status_level = $this->Freelancer_model->service_level($user_id);	
+			$level['user_id'] = $user_id;
+			$level['complete']    = $status_level['complete'];
+			$level['rank']        = $status_level['rank'];
+			$rankData[] = $level;		
+		}
+		
+		/*echo "<pre>";
+		print_r($rankData);die();*/
+		$data->userlist = $userlist;
+		$data->rankData = $rankData;
 		$this->load->view('FreelancerOtherDetails',$data);
-	 }
+	}
 
 	public function services()
 	{

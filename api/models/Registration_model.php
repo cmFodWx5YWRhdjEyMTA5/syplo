@@ -16,8 +16,7 @@ class Registration_model extends CI_Model
     public function registration($data)
     {
         if($this->db->insert('registration',$data))
-        {   
-
+        { 
             $id = $this->db->insert_id(); 
             return $this->db->get_where('registration', array('id'=>$id))->row();
         }

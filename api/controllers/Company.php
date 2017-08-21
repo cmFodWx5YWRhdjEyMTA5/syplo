@@ -218,6 +218,7 @@ class Company extends CI_Controller {
 			                //$r["data"]["age"]                = $age;             
 			                $offer[]=$r;
 			                $req_details='';
+			                $anoservices_detail='';
 				        }				        
 			        }
 			        $offer_res["error"]				= 0;	

@@ -70,7 +70,7 @@ textarea:hover, textarea:focus, #items td.total-value textarea:hover, #items td.
 
 <div id="page-wrap">
 
-		<div id="header">Order Detail</div>
+		<div id="header">Beställningsdetalj</div>
 		
 		<div id="identity">
             <div style="margin-left: 45%;">
@@ -83,43 +83,43 @@ textarea:hover, textarea:focus, #items td.total-value textarea:hover, #items td.
 		<?php 
 		$canceling_policy='';
 		if($order_details->provider_cancelPolicy==1)
-	 	{ $canceling_policy='Flexible';}
+	 	{ $canceling_policy='Flexibel';}
 	 	else if($order_details->provider_cancelPolicy==2)
-	 	{ $canceling_policy='Strict';}
+	 	{ $canceling_policy='Strikt';}
 	 	else
-	 	{ $canceling_policy='Moderate';}
+	 	{ $canceling_policy='Måttlig';}
 		?>
 	
 			<table id="items">
                 <tbody>
 	               <tr>
-				  	  <th>Provider Name</th>	
+				  	  <th>Leverantörens namn</th>	
 				      <td><?php echo $details['provider_name']; ?></td>
-				      <th>Provider Email</th>	
+				      <th>Leverantörs-e-post</th>	
 				      <td><?php echo $details['provider_email']; ?></td>
 			  		</tr>
 			  		<tr>
-				  	  <th>Customer Name</th>	
+				  	  <th>Kundnamn</th>	
 				      <td><?php echo $details['customer_name']; ?></td>
-				      <th>Customer Email</th>
+				      <th>Kund e-post</th>
 				      <td><?php echo $details['customer_email'];?></td>
 			  		</tr>
 			  		<tr>
-				  	  <th>Cancel Policy</th>	
+				  	  <th>Avbokningspolicy</th>	
 				      <td><?php echo $canceling_policy; ?></td>
-				      <th>Order Date</th>
+				      <th>Orderdatum</th>
 				      <td><?php echo $order_details->date;?></td>
 			  		</tr>			  
 				  <tr>
-					  <th>Order Address</td>	
+					  <th>Beställningsadress</td>	
 				      <td class="description"><?php echo $order_details->address;?></td>
-				      <th>OrderTime</th>
+				      <th>Beställningstid</th>
 				      <td><?php echo $order_details->time;?></td>
 				  </tr>
 			  <tr>
-				  <th style="font-weight: bolder;">Transaction Id</td>	
+				  <th style="font-weight: bolder;">Transaktions ID</td>	
 			      <td style="font-weight: bolder;"><?php echo $payment_detail->transaction_id;?></td>
-			      <th style="font-weight: bolder;">Transaction Status</td>	
+			      <th style="font-weight: bolder;">Transaktionsstatus</td>	
 			      <td style="font-weight: bolder;"><?php echo $payment_detail->transaction_status;?></td>
 			  </tr>
             	</tbody>
@@ -128,18 +128,18 @@ textarea:hover, textarea:focus, #items td.total-value textarea:hover, #items td.
 		<table id="items">
 		  <tbody>
 			  <tr>
-			  	  <th>Sr.No.</th>	
-			      <th>Service Name</th>
-			      <th>Price Type</th>
-			      <th>Price</th>
-			      <th>Total Hour</th>
-			      <th>Total cost</th>
+			  	 <th>Sr.Nr.</th>	
+			      <th>Behandling</th>
+			      <th>Pris typ</th>
+			      <th>Pris</th>
+			      <th>totalt antal timmar</th>
+			      <th>Total kostnad</th>
 			  </tr>
 			  <?php $ServiceCoast =0; $i=1;
 			   	foreach ($services as $key)
 			    {
 			  		if($key->total_hour==24)
-				  	{ $total_hour = 'Fixed'; }
+				  	{ $total_hour = 'Fast pris'; }
 				  	else
 				  	{ $total_hour = $key->total_hour; }
 			    ?>
@@ -151,7 +151,7 @@ textarea:hover, textarea:focus, #items td.total-value textarea:hover, #items td.
 			      		<div><?php echo $key->sub_category;?></div>
 			      	</div>
 			      </td>
-			      <td><?php if($key->price_type==0){echo 'per hour';}else {echo "Fixed";} ?></td>
+			      <td><?php if($key->price_type==0){echo 'per timme';}else {echo "Fast pris";} ?></td>
 			      <td><?php echo 'kr '.$key->price; ?></td>
 			      <td><?php echo $total_hour; ?></td>
 			      <td><?php echo 'kr '.$key->total_cost; ?></td>
@@ -163,18 +163,18 @@ textarea:hover, textarea:focus, #items td.total-value textarea:hover, #items td.
 			  $payed_amount  = $payment_detail->gross_amount;
 			  $due_amount    = $ServiceCoast-$payed_amount;
 
-			  $discount_type ='No Discount';
+			  $discount_type ='ingen rabatt';
 			  $discount      = 0;
 			  	    if($payment_detail->discount!='')
 			  	    {
 			  	    	$discount = $ServiceCoast-$payment_detail->gross_amount;
 			  	    	if($payment_detail->discount_id==0)
 			  	    	{
-			  	    		$discount_type = 'Referral Discount';
+			  	    		$discount_type = 'Hänvisningsrabatt';
 			  	    	}
 			  	    	else
 			  	    	{
-			  	    		$discount_type = 'General Discount';
+			  	    		$discount_type = 'Allmän rabatt';
 			  	    	}
 
 			  	    }
@@ -182,24 +182,24 @@ textarea:hover, textarea:focus, #items td.total-value textarea:hover, #items td.
 			   ?>
 			   <tr>
 			      <td colspan="3" class="blank"> </td>
-			      <td colspan="2" style="font-weight: bolder;">Final Bill Amount</td>
+			      <td colspan="2" style="font-weight: bolder;">Slutlig räkningsbelopp</td>
 			      <td  style="font-weight: bolder;"><?php echo 'kr '.$ServiceCoast;?></td>
 			  </tr>	
 			  <tr>
 			      <td colspan="3" class="blank"> </td>
-			      <td colspan="2" style="font-weight: bolder;">- Amount Payed</td>
+			      <td colspan="2" style="font-weight: bolder;">- Betalt belopp</td>
 			      <td><?php echo 'kr '.$payment_detail->gross_amount;?></td>
 			  </tr>
 			   <tr>
 			      <td colspan="3" class="blank"> </td>
-			      <td colspan="2" style="font-weight: bolder;">Net Due Payment</td>
+			      <td colspan="2" style="font-weight: bolder;">Nettoförsättning</td>
 			      <td  style="font-weight: bolder;"><?php echo 'kr '.$due_amount;?></td>
 			  </tr>		
 			</tbody>
 		</table>		
-		<span style="font-size:10px;"><strong>*This is only e-generat order bill. If any query regarding bill please drop email to <u>info@syplo.se</u></strong></span>
+		<span style="font-size:10px;"><strong>*Detta är ett elektroniskt genererat email. Om du har några frågor, vänligen kontakta  <u>info@syplo.se</u></strong></span>
 		<div id="terms">
-		  <h5>!! Thanks Syplo Team !!</h5>
+		  <h5>Med vänliga hälsningar, Syplo</h5>
 		</div>
 	
 	</div>

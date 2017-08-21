@@ -81,6 +81,8 @@ class Freelancer_model extends CI_Model
 
 		   		if($user_detail->user_type==1)
 		   		{ $user_type='Freelancer';}
+                else if($user_detail->user_type==4)
+                { $user_type='Member';}
 		   		else
 		   		{ $user_type='Company';}
 
@@ -89,12 +91,23 @@ class Freelancer_model extends CI_Model
 	   		 	else if($user_detail->canceling_policy==2)
 	   		 	{ $canceling_policy='Strict';}
 	   		 	else
-	   		 	{ $canceling_policy='Moderate';}          			
-            $response["error"]			  = 0;	
-			$response["success"]		  = 1;
-			$response["message"]		  = "Success";			
-			$response["data"]["image"]         = base_url().'upload/'.$user_detail->user_image;
+	   		 	{ $canceling_policy='Moderate';} 
+
+                $company_id = $user_detail->company_id;
+                $company_name ='';
+                if($company_id!=0)
+                {
+                    $company_details = $this->Registration_model->profiledata($company_id);
+                    $company_name = $company_details->company_name;
+                }
+
+            $response["error"]			            = 0;	
+			$response["success"]		            = 1;
+			$response["message"]		            = "Success";			
+			$response["data"]["image"]              = base_url().'upload/'.$user_detail->user_image;
 			$response["data"]["user_id"]          	= $user_detail->id;
+            $response["data"]["company_id"]         = $company_id;
+            $response["data"]["company_name"]       = $company_name; 
 	        $response["data"]["user_type"]          = $user_type; 
             $response["data"]["age"]          		= $age; 
             $response["data"]["rating"]			    = $rating;
@@ -232,6 +245,7 @@ class Freelancer_model extends CI_Model
 
     public function get_bookingHistory($provider_id)
     {
+        $this->db->order_by('id','DESC');
         $where = '(order_status="1" or approve_status = "2")';
         $this->db->where('provider_id',$provider_id);
         $this->db->where($where);
@@ -252,7 +266,8 @@ class Freelancer_model extends CI_Model
     {
         $this->db->select('id,customer_id');
         $this->db->from('review');
-        $this->db->where(array('provider_id'=>$provider_id,'rating!='=>-1));
+        // $this->db->where(array('provider_id'=>$provider_id,'rating!='=>-1));
+        $this->db->where(array('provider_id'=>$provider_id));
         $this->db->order_by('id','DESC');
         $idd = $this->db->get()->result();
         $Cust_review=[];
@@ -295,7 +310,7 @@ class Freelancer_model extends CI_Model
     {
         $this->db->select('id,customer_id');
         $this->db->from('review');
-        $this->db->where('provider_id',$provider_id);
+        $this->db->where(array('provider_id'=>$provider_id,'rating!='=>-1));
         $this->db->order_by('id','DESC');
         $this->db->limit(1,0);
         $idd = $this->db->get()->row();

@@ -37,7 +37,8 @@ class Order extends CI_Controller
 		$rawPostData 	= file_get_contents('php://input');
 		$jsonData 		= json_decode($rawPostData,true);
 		if(!empty($jsonData))
-		{		
+		{
+		$customer_id    = $jsonData['customer_id'];		
 		$date 			= $jsonData['date'];
 		$time 			= $jsonData['time'];
 		$order_address 	= $jsonData['address'];  // 0=providerAdd 1=customerAdd
@@ -71,7 +72,8 @@ class Order extends CI_Controller
 		//$WorkPerformUserId=array("22","23");		
 		if(!empty($WorkPerformUserId))
     	{
-    		$WorkPerformUserId = $this->Order_model->checkOrderTime($WorkPerformUserId,$date,$time);	    		
+    		$WorkPerformUserId = $this->Order_model->checkOrderTime($WorkPerformUserId,$date,$time);
+
 	    	//$WorkPerformUserId = $this->Order_model->checkPosition($WorkPerformUserId,$date,$time);
     		//print_r($WorkPerformUserId);die();
 	    	$res = $this->Order_model->search($time,$addLat,$addLng,$addresstype,$WorkPerformUserId); 
@@ -102,7 +104,11 @@ class Order extends CI_Controller
 	    			}
 
 	    			$latestReview = $this->Freelancer_model->get_latestReview($user_id);
-	    			$rating  = $this->Freelancer_model->get_rating($user_id);
+	    			$rating       = $this->Freelancer_model->get_rating($user_id);
+	    			$discount     = $this->Registration_model->discountDetails($customer_id);
+	    			if(empty($discount))
+			    	{  $discount =''; }
+
 	    			if(!empty($services_id))
 	    			{	    				
 	    				$services	= $this->Order_model->service_price($user_id,$services_id);
@@ -154,6 +160,7 @@ class Order extends CI_Controller
 					$data["latestReview"]		= $latestReview;
 					$data["services"]			= $services;
 					$data["another_services"]	= $anoservices;
+					$data["discount"]           = $discount;
 					//$data["another_service"]	=
 	    		 	$d[]= $data;
 	    		} 
@@ -305,7 +312,7 @@ class Order extends CI_Controller
 		return $from->diff($to)->y.' year old';
 	}
 
-	public function storetransaction_details($TransactionData,$discount_id)
+	public function storetransaction_details($TransactionData,$discount_id,$order_id)
 	{
 				/***********Store transaction details with discount**************/
 		$transaction_details = $this->Order_model->storetransaction_details($TransactionData);
@@ -315,7 +322,7 @@ class Order extends CI_Controller
 			{
 				/***********Update discount Status**************/				
 				$taken_timestamp  = date('Y-m-d H:i');
-				$this->Order_model->updateDiscountStatus($discount_id,$taken_timestamp);
+				$this->Order_model->updateDiscountStatus($discount_id,$taken_timestamp,$order_id);
 				/***********Update discount Status**************/
 			}			
 			return $transaction_details;
@@ -426,7 +433,7 @@ class Order extends CI_Controller
 					"transaction_status" => $transaction_status
 				);
 				$Tr_details ='';
-				$Tr_details = $this->storetransaction_details($TransactionData,$discount_id);
+				$Tr_details = $this->storetransaction_details($TransactionData,$discount_id,$order_id);
 				$book_service = array_merge($actual_service,$another_services);
 				$this->Order_model->book_service($book_service);
 
@@ -438,9 +445,9 @@ class Order extends CI_Controller
 			 	$req_services_details = $this->Order_model->order_service($order_id);
 				$ano_services_details = $this->Order_model->another_orderService($order_id);
 				$services = array_merge($req_services_details,$ano_services_details);
-				$subject ='New order';
-				$Emailmessage = 'New order request for you';
-				$message      = 'Thanks! Your service request is successfully submit.';
+				$subject ='Ny bokning';     //New order';
+				$Emailmessage = 'Hej, du har fått en ny bokning via Syplo. Se detaljer i tabellen nedan. Glöm inte logga in i appen för att godkänna eller avböja förfrågan om du inte har instant booking!';
+				$message      = 'Hej! Din bokning har skickats. Se detaljer i tabellen nedan. Glöm inte ta kontakt med varandra via Syplo chatten för portkoder och annat.';
 
 			 	if($provider!='' && $provider->isEmail==1)
 			 	{
@@ -528,9 +535,9 @@ class Order extends CI_Controller
 				 	$req_services_details = $this->Order_model->order_service($order_id);
 					$ano_services_details = $this->Order_model->another_orderService($order_id);
 					$services = array_merge($req_services_details,$ano_services_details);
-					$subject      = 'Order Bill';
-					$Emailmessage = 'Thanks! Your order has been successfully completed. Complete Order id is '.$order_id;
-					$message      = 'Thanks! Your order has been successfully completed. Complete Order id is '.$order_id;
+					$subject      = 'Kvitto';   //Order Bill
+					$Emailmessage = 'Hej! Behandlingen är nu klar. Ditt transaktions ID är  '.$order_id;
+					$message      = 'Hej! Behandlingen är nu klar. Ditt transaktions ID är  '.$order_id;
 
 				 	if($customer!='' && $customer->isEmail==1)
 				 	{	//For Order detials with provider details send to customer			 		
@@ -668,6 +675,8 @@ class Order extends CI_Controller
 	                $r["another_services"]   = $anoservices_detail;	                
 	                //$r["data"]["age"]                = $age;             
 	                $offer[]=$r;
+	                $req_details='';
+	                $anoservices_detail='';
 	        	}
 		        $offer_res["error"]				= 0;	
 				$offer_res["success"]			= 1;
@@ -701,9 +710,9 @@ class Order extends CI_Controller
 		{
 			if($this->Order_model->cancel_booking_orders($order_id))
 			{
-				$subject = "Order Cancel";
-				$message = "Sorry! Your order has been canceled by customer. Cancel Order id is ".$order_id.'.';
-				$message1 = "Your order has been successfully canceled. Cancel Order id is ".$order_id.'.';
+				$subject = "Beställning avbokad";
+				$message = "Din beställning har annullerats av kunden.Beställnings-id är ".$order_id.'.';
+				$message1 = "Din beställning har avbrutits. Beställnings-id är ".$order_id.'.';
 				$order_details = $this->Order_model->order_details($order_id);
 				$customer_id = $order_details->customer_id;
 				$provider_id = $order_details->provider_id;
@@ -737,7 +746,6 @@ class Order extends CI_Controller
 				$response["message"]			= "Error occur! Please try again";
 				echo json_encode($response);
 			}
-			
 		}	
         else
 		{
@@ -762,13 +770,13 @@ class Order extends CI_Controller
 			{
 				if($status!=2)
 				{				
-					$message 	= "Your order id ".$order_id." has been accepted by provider.";
-				 	$message1 	= "Your response has been successfully saved.";
+					$message 	= " Hej! Din beställning med id ".$order_id." har bekräftats av behandlaren. Se detaljerna i tabellen nedan.";
+				 	$message1 	= "Ditt svar har sparats.";
 				}
 				else
 				{
-					$message 	= "Sorry! Your order id  ".$order_id." has been rejected by provider.";
-				 	$message1 	= "Your response has been successfully saved.";
+					$message 	= "Hej! Tyvärr har din bokning med ID ".$order_id." blivit avbokad av behandlaren. Se detaljer i tabellen nedan.";
+				 	$message1 	= "Ditt svar har sparats.";
 				}
 				//----------------------------------------------------------------------//
 				$order_details =  $this->Order_model->order_details($order_id);
@@ -780,7 +788,7 @@ class Order extends CI_Controller
 			 	$provider 	= $this->Communication_model->get_notificationSetting($provider_id);
 			 	$customer 	= $this->Communication_model->get_notificationSetting($customer_id);
 			 	//----------------------------------------------------------------------//
-			 	$subject 	= "Order Status";
+			 	$subject 	= "Status på bokning";
 			 	if($provider!='' && $provider->isEmail==1)
 			 	{
 			 		//For Order detials with customer details send to provider
@@ -793,8 +801,6 @@ class Order extends CI_Controller
 			 		//Email send to the customer
 			 		$mailstatus =0;
 					$this->Communication_model->SentBillByEmail($order_id,$order_details,$services,$subject,$message,$mailstatus);
-
-			 		//$this->Communication_model->sendCancelMessageToCustomer($customer_id,$message,$subject);
 			 	}
 			 	if($customer!='' && $customer->isSms==1)
 			 	{
@@ -803,14 +809,14 @@ class Order extends CI_Controller
 			 	}			 	
 			 	$this->Communication_model->customernotification($provider_id,$customer_id,$message);
 			 	$this->Communication_model->SentBillByEmailToSyplo($order_id,$order_details,$services,$subject,$message);
-			 	if($status==3 && $customer_id!='' && $provider_id!='')
+			 	if($status==2 && $customer_id!='' && $provider_id!='')
 				{
 					$data= array(
-						"order_id" =>$order_id,
-						"customer_id"=>$customer_id,
-						"provider_id"=>$provider_id,
-						"rating"=>'-1',
-						"comment"=>'Reject',
+						"order_id"   => $order_id,
+						"customer_id"=> $customer_id,
+						"provider_id"=> $provider_id,
+						"rating"     => '-1',
+						"comment"    => 'Behandlaren avbokade denna bekräftade bokning.',
 						);
 					$this->Order_model->insert_review($data);
 				}
@@ -862,7 +868,8 @@ class Order extends CI_Controller
 			$res = $this->Order_model->get_review($id);
 			$customer 	= $this->Communication_model->get_notificationSetting($customer_id);
 			$provider 	= $this->Communication_model->get_notificationSetting($provider_id);
-			$message    = 'New review for you.'; 
+			//$message    = 'New review for you.'; 
+			$message    = 'Du har fått ett nytt omdöme, gå in på Syplo appen för att se ditt omdöme.'; 
 			if($provider!='' && $provider->isEmail==1 && $type ==0)
 		 	{
 		 		//Email send to provider
@@ -958,7 +965,7 @@ class Order extends CI_Controller
 					'user_image'=>base_url().'upload/'.$freelancher_profile->user_image,
 					'freelancher_id'=>$freelancher_profile->id,
 					'provider_email'=>$freelancher_profile->email,
-					'full_name'=>$freelancher_profile->first_name .''.$freelancher_profile->last_name,
+					'full_name'=>$freelancher_profile->first_name .' '.$freelancher_profile->last_name,
 					'gender'=>$freelancher_profile->gender,
 					'age'=>$age,
 					'user_type'=>$user_type,
@@ -967,6 +974,7 @@ class Order extends CI_Controller
 					'date'=>$key->date,
 					'time'=>$key->time,
 					'order_address'=>$key->address,
+					'approve_status'=>$key->approve_status,
 					'rating'=>$rating,
 					'canceling_policy'=>$canceling_policy,
 					'acceptance'=>$acceptance,
@@ -1023,6 +1031,8 @@ class Order extends CI_Controller
 
 			   		if($freelancher_profile->user_type==1)
 			   		{ $user_type='Freelancer';}
+			   		else if($freelancher_profile->user_type==4)
+			   		{ $user_type='Member';}
 			   		else
 			   		{ $user_type='Company';}
 
@@ -1033,11 +1043,22 @@ class Order extends CI_Controller
 		   		 	else
 		   		 	{ $canceling_policy='Moderate';}
 					$age = $this->CalculateAge($freelancher_profile->dob); 
-					$userdata[]=array(
+
+					$company_id = $freelancher_profile->company_id;
+		   			$company_name ='';
+					if($company_id!=0)
+		   		 	{
+		   		 		$company_details = $this->Registration_model->profiledata($company_id);
+		   		 		$company_name = $company_details->company_name;
+		   		 	}
+
+	    			$userdata[]=array(
 					'order_id'=>$key->id,
+					'company_id'=>$company_id,
+					'company_name'=>$company_name,
 					'user_image'=>base_url().'upload/'.$freelancher_profile->user_image,
 					'freelancher_id'=>$freelancher_profile->id,
-					'full_name'=>$freelancher_profile->first_name .''.$freelancher_profile->last_name,
+					'full_name'=>$freelancher_profile->first_name .' '.$freelancher_profile->last_name,
 					'gender'=>$freelancher_profile->gender,
 					'age'=>$age,
 					'user_type'=>$user_type,
@@ -1100,7 +1121,7 @@ class Order extends CI_Controller
 			   		$userdata[]=array(
 					'user_image'=>base_url().'upload/'.$freelancher_profile->user_image,
 					'freelancher_id'=>$freelancher_profile->id,
-					'full_name'=>$freelancher_profile->first_name .''.$freelancher_profile->last_name,
+					'full_name'=>$freelancher_profile->first_name .' '.$freelancher_profile->last_name,
 					'email'=>$freelancher_profile->email,
 					'user_type'=>$user_type
 					);
@@ -1198,7 +1219,7 @@ class Order extends CI_Controller
 							"customer_id"=>$customer_id,
 							"provider_id"=>$provider_id,
 							"rating"=>'-1',
-							"comment"=>'order time expire',
+							"comment"=>'Beställning stiden går ut',
 							);
 						$this->Order_model->insert_review($data);
 					}

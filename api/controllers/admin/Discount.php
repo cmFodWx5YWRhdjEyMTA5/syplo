@@ -76,7 +76,6 @@ class Discount extends CI_Controller
       $id  = $_GET['id'];
       if(isset($_POST['submit']))
       {
-
         extract($_POST);
         $update = date('Y-m-d H:i');
         $data = array(
@@ -112,8 +111,8 @@ class Discount extends CI_Controller
       {   
         $res = $this->Discount_model->get_discountDetail($id);
         // print_r($res);die();
-      $data= new stdClass();  
-      $data->userData=$res;
+        $data= new stdClass();  
+        $data->userData=$res;
         $this->load->view('update_discount',$data);
         //print_r($id);
       }
@@ -196,9 +195,8 @@ class Discount extends CI_Controller
         extract($_POST);
         $update = date('Y-m-d H:i');
         $data = array(
-          "type"            => $type,
           "commission"      => $commission,
-          "update_at"       =>$update
+          "update_at"       => $update
           );
       $response = $this->Discount_model->updateCommission($id,$data);
       if($response)

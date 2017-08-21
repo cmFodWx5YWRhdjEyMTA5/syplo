@@ -10,6 +10,7 @@ class Registration extends CI_Controller
             $this->load->model('Service_model');
             $this->load->model('Setting_model'); 
             $this->load->model('Freelancer_model');
+            $this->load->model('Communication_model');
             
     }
 
@@ -47,19 +48,7 @@ class Registration extends CI_Controller
 	        $data				= $_POST['account'];       		//[{"secretno":"1132","type":"visa","status":"0"}]
 
 			$accountdetails		= json_decode($data);
-			/*$approve_status     = '';
-			if($user_type==2)
-			{
-				$approve_status=1;
-			}*/
-
-
-	        /*$secretno   		= array($_POST['secretno']);
-	        $paymenttype		= array($_POST['paymenttype']); 			 //Type:- 0=debitcard,1=bank,2=paypal
-	        $active_status		= array($_POST['active_status']);          //active_status : 0=not,1=active
-	        $secretnos  		= explode(',',$secretno[0]);
-	        $paymenttypes  		= explode(',',$paymenttype[0]);
-	        $active_status  	= explode(',',$active_status[0]);*/
+			
 	        $ReferalData =''; $ReferalData1='';
 	        if($customerReferral_code!='')
 	        {	        	
@@ -145,7 +134,7 @@ class Registration extends CI_Controller
 					$i='';
 					if($res)
 					{
-						$user_id  = $res->id;
+						$user_id  = $res->id;					
 						$customerReferral = $res->referral_code;
 						if($ReferalData!='')
 						{
@@ -194,7 +183,10 @@ class Registration extends CI_Controller
 				    	{$discount = $discount;}
 				    	else
 				    	{$discount ='';}
-
+				    	/*Send email to Syplo start*/
+				    	//$result = $this->Registration_model->profiledata($user_id);
+				    	$this->Communication_model->SentSignupDetailsToSyplo($res);
+				    	/*Send email to Syplo End*/
 						$response["error"]				= 0;	
 			    		$response["success"]			= 1;
 			    		$response["message"]			= "success";
@@ -423,6 +415,7 @@ class Registration extends CI_Controller
 			if($res)
 			{
 				$user_id=$res->id;
+				$this->Communication_model->SentSignupDetailsToSyplo($res);
 				$user_type= $res->user_type;
 				$this->Setting_model->add_setting($user_id,$user_type);
 				$response["error"]              = 0;    

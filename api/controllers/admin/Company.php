@@ -242,7 +242,17 @@ class Company extends CI_Controller {
 		$data= new stdClass();
 		if(!empty($member_data))
 		{
+			foreach ($member_data as $list) 
+			{
+				$user_id              = $list->id;
+				$status_level         = $this->Freelancer_model->service_level($user_id);	
+				$level['user_id']     = $user_id;
+				$level['complete']    = $status_level['complete'];
+				$level['rank']        = $status_level['rank'];
+				$rankData[] = $level;		
+			}
 			$data->userlist=$member_data;
+			$data->rankData = $rankData;
 			$this->load->view('MemberOtherDetails',$data);
 		}
 		else
@@ -251,6 +261,7 @@ class Company extends CI_Controller {
 			$data->success=1;
 			$data->message="Member is not available!";
 			$data->userlist=$member_data;
+			$data->rankData =[];
     		$this->load->view('MemberOtherDetails',$data); 
 		}
     	
