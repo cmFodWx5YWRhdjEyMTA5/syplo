@@ -6,11 +6,11 @@ class Registration extends CI_Controller
 	function __construct() 
 	{
         parent::__construct();
-            $this->load->model('Registration_model');
-            $this->load->model('Service_model');
-            $this->load->model('Setting_model'); 
-            $this->load->model('Freelancer_model');
-            $this->load->model('Communication_model');
+        $this->load->model('Registration_model');
+        $this->load->model('Service_model');
+        $this->load->model('Setting_model'); 
+        $this->load->model('Freelancer_model');
+        $this->load->model('Communication_model');
             
     }
 

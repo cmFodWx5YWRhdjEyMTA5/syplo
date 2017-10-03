@@ -490,10 +490,11 @@ class Freelancer extends CI_Controller {
 		if(isset($_POST['user_id']) && $_POST['user_id']!='')
 		{
 			extract($_POST);			
-			$user_id  =$_POST['user_id'];
+			$user_id    = $_POST['user_id'];
 			$days		= $_POST['days'];
 			$updateDay  = explode(',', $days);
-			// $updateDay  = json_decode($days,true);
+			//$updateDay  = json_decode($days,true);
+			$add_accept 	   = $_POST['address_acceptance']; // 1 or 2
 			$area				= $_POST['customer_addresses'];
     		$customer_addresses	= json_decode($area);
     		$update_at			= date('Y-m-d h:i:s');
@@ -539,11 +540,10 @@ class Freelancer extends CI_Controller {
 				{
 					$this->updateDays($updateDay,$user_id);
 				}
-				if(!empty($customer_addresses))
-				{
-					$livearea = array("user_id"=>$user_id,"area_address"=>$_POST['address'],"area_lat"=>$_POST['lat'],"area_lng"=>$_POST['long'],"address_status"=>"1","update_at"=>$update_at);
-					$this->CustomerAddressUpdate($customer_addresses,$user_id,$livearea);
-				}
+				/*   Customer Address insert,update or delete */
+				$livearea = array("user_id"=>$user_id,"area_address"=>$_POST['address'],"area_lat"=>$_POST['lat'],"area_lng"=>$_POST['long'],"address_status"=>"1","update_at"=>$update_at);
+					$this->CustomerAddressUpdate($customer_addresses,$user_id,$livearea,$add_accept);
+
 				$upp = $details = $this->keyChanges($up);
 				$userDays 		 = $this->Freelancer_model->userDays($user_id);
 				$CustomerAddress = $this->Freelancer_model->allCustomerAddress($user_id);
@@ -578,25 +578,33 @@ class Freelancer extends CI_Controller {
 			echo json_encode($response);
 		}
 	}
-	function CustomerAddressUpdate($customer_addresses,$user_id,$livearea)
+	function CustomerAddressUpdate($customer_addresses,$user_id,$livearea,$add_accept)
     {
- 		// [{"area_address":"vijay nagar,indore","area_lat":"25.2563","area_lng":"72.256314"}]	
-		$geoarea='';
-		$update_at			= date('Y-m-d h:i:s');
-		foreach ($customer_addresses as $key)
-		{
-			$ac["user_id"]		= $user_id;
-			$ac["area_address"]	= $key->area_address;
-			$ac["area_lat"]		= $key->area_lat;
-			$ac["area_lng"]		= $key->area_lng;
-			$ac["address_status"] = 0;
-			$ac["update_at"]	= $update_at;
-			$geoarea[]			= $ac;
+ 		// [{"area_address":"vijay nagar,indore","area_lat":"25.2563","area_lng":"72.256314"}]
+ 		if(!empty($customer_addresses))
+		{	
+			$geoarea='';
+			$update_at			= date('Y-m-d h:i:s');
+			foreach ($customer_addresses as $key)
+			{
+				$ac["user_id"]		= $user_id;
+				$ac["area_address"]	= $key->area_address;
+				$ac["area_lat"]		= $key->area_lat;
+				$ac["area_lng"]		= $key->area_lng;
+				$ac["address_status"] = 0;
+				$ac["update_at"]	= $update_at;
+				$geoarea[]			= $ac;
+			}
+			$l = count($geoarea);
+			$geoarea[$l]= $livearea;
+			//print_r($geoarea);die();
+			$this->Freelancer_model->customerAddressUpdate($geoarea,$user_id);	
 		}
-		$l = count($geoarea);
-		$geoarea[$l]= $livearea;
-		//print_r($geoarea);die();
-		$this->Freelancer_model->customerAddressUpdate($geoarea,$user_id);	
+		if(empty($customer_addresses) && ($add_accept!=1 or $add_accept!=2) )
+		{
+			//echo "Delete addresses";die();
+			$this->Freelancer_model->deleteCustomerAddress($user_id);
+		}
     }
 
 	function updateDays($updateDay,$user_id)

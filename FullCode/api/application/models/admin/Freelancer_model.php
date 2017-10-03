@@ -11,7 +11,7 @@ class Freelancer_model extends CI_Model
 	{
 		$this->db->select('*');
 		$this->db->order_by("id","DESC");
-		$this->db->where("user_type",1);
+		$this->db->where(array("user_type"=>1,'status'=>1));
 		$query=$this->db->get("registration");		
 		$result=$query->result();
 		return $result;

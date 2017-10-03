@@ -711,12 +711,19 @@ class Order extends CI_Controller
 		{
 			if($this->Order_model->cancel_booking_orders($order_id))
 			{
-				$subject = "Beställning avbokad";
-				$message = "Din beställning har annullerats av kunden.Beställnings-id är ".$order_id.'.';
-				$message1 = "Din beställning har avbrutits. Beställnings-id är ".$order_id.'.';
+				
 				$order_details = $this->Order_model->order_details($order_id);
-				$customer_id = $order_details->customer_id;
-				$provider_id = $order_details->provider_id;
+				$customer_id   = $order_details->customer_id;
+				$provider_id   = $order_details->provider_id;
+				$order_date    = $order_details->date;
+				$order_time    = $order_details->time;
+				$customer      = $this->Registration_model->profiledata($customer_id);
+		        $customer_name = '';
+		        if(!empty($customer)){$customer_name=$customer->first_name.' '.$customer->last_name;}
+
+				$subject  = "Beställning avbokad";
+				$message = 'Din bokning med "'.$customer_name.'" den '.$order_date.' '.$order_time.' har blivit avbokad av kunden. Beställnings-ID är '.$order_id.'.';
+				$message1 = "Din beställning har avbrutits. Beställnings-id är ".$order_id.'.';
 
 				$provider 	= $this->Communication_model->get_notificationSetting($provider_id);
 			 	$customer 	= $this->Communication_model->get_notificationSetting($customer_id);
@@ -854,70 +861,84 @@ class Order extends CI_Controller
 	   $rawPostData  = file_get_contents('php://input');
        $jsonData   = json_decode($rawPostData,true);
        //print_r($jsonData);die();
-       $customer_id = $jsonData['customer_id'];
-	   $provider_id = $jsonData['provider_id'];
-	   $type        = $jsonData['type']; 
+       if(!empty($jsonData))
+       {
+	       	// $customer_id = $jsonData['customer_id'];      //Sender
+	       	// $provider_id = $jsonData['provider_id'];      //Sender
+	       	$sender_id 	= $jsonData['customer_id'];      //Sender
+		   	$receiver_id = $jsonData['provider_id'];      //Receiver  
+		   	$type        = $jsonData['type']; // 0=When customer give 1= When provider give
 
-       $data=array(
-       				'order_id'    => $jsonData['order_id'],
-       				'customer_id' => $jsonData['customer_id'],
-	   				'provider_id' => $jsonData['provider_id'],
-	   				'rating'      => $jsonData['rating'],
-	   				'comment'     => $jsonData['comment']
-	   			  );
+       		$data = array(
+       			'order_id'     => $jsonData['order_id'],
+   				'customer_id'  => $sender_id,
+   				'provider_id'  => $receiver_id,
+   				'rating'       => $jsonData['rating'],
+   				'comment'      => $jsonData['comment']
+       			);
+       		//$this->Communication_model->SentReviewByEmail($data);die();
+			$id  = $this->Order_model->insert_review($data);
+			if($id)
+			{
+				$res        = $this->Order_model->get_review($id);
+				/*$customer 	= $this->Communication_model->get_notificationSetting($customer_id);
+				$provider 	= $this->Communication_model->get_notificationSetting($provider_id);*/
+				$sender 	= $this->Communication_model->get_notificationSetting($sender_id);
+				$receiver 	= $this->Communication_model->get_notificationSetting($receiver_id);
 
-		$id  = $this->Order_model->insert_review($data);
-		if($id)
+				//$message    = 'New review for you.'; 
+				$message    = 'Du har fått ett nytt omdöme, gå in på Syplo appen för att se ditt omdöme.'; 
+				if($type==0)
+			 	{
+					if($receiver!='' && $receiver->isEmail==1)
+				 	{
+				 		//Email send to provider
+				 		$this->Communication_model->SentReviewByEmail($data);
+				 	}
+				 	if($receiver!='' && $receiver->isSms==1)
+				 	{
+				 		//SMS send to provider
+				 		$this->Communication_model->sendSms($message,$receiver_id);
+				 	}		 	
+						$this->Communication_model->providernotification($receiver_id,$sender_id,$message);
+				}
+				if($type==1)
+			 	{
+				 	if($receiver!='' && $receiver->isEmail==1)
+				 	{
+				 		//Email send to the customer 
+				 		$this->Communication_model->SentReviewByEmail($data);
+				 	}
+				 	if($receiver!='' && $receiver->isSms==1)
+				 	{
+				 		//Message send to the customer mobile number
+				 		$this->Communication_model->sendSms($message,$receiver_id);
+				 	}
+				 		$this->Communication_model->customernotification($receiver_id,$sender_id,$message);
+			 	}
+
+			   	$response["error"]				= 0;	
+				$response["success"]			= 1;
+				$response["message"]			= "Success";
+				$response["data"]				= $res;
+			   	echo json_encode($response); 
+			}
+			else
+			{
+				$response["error"]				= 1;	
+				$response["success"]			= 0;
+				$response["message"]			= "Error occur! try again";
+				$response["data"]				= [];
+			    echo json_encode($response); 
+			}	
+	    }
+	    else
 		{
-			$res = $this->Order_model->get_review($id);
-			$customer 	= $this->Communication_model->get_notificationSetting($customer_id);
-			$provider 	= $this->Communication_model->get_notificationSetting($provider_id);
-			//$message    = 'New review for you.'; 
-			$message    = 'Du har fått ett nytt omdöme, gå in på Syplo appen för att se ditt omdöme.'; 
-			if($provider!='' && $provider->isEmail==1 && $type ==0)
-		 	{
-		 		//Email send to provider
-		 		$this->Communication_model->SentReviewByEmail($data);
-		 	}
-		 	if($provider!='' && $provider->isSms==1 && $type ==0)
-		 	{
-		 		//Email send to provider
-		 		$this->Communication_model->sendSms($message,$provider_id);
-		 	}
-		 	if($type==0)
-		 	{
-			 	$this->Communication_model->providernotification($provider_id,$customer_id,$message);
-		 	}
-		 	if($customer!='' && $customer->isEmail==1 && $type ==1)
-		 	{
-		 		//Email send to the customer 
-		 		$this->Communication_model->SentReviewToCustomer($data);
-		 	}
-		 	if($customer!='' && $customer->isSms==1 && $type ==1)
-		 	{
-		 		//Message send to the customer mobile number
-		 		$this->Communication_model->sendSms($message,$customer_id);
-		 	}
-		 	if($type==1)
-		 	{
-		 		$this->Communication_model->customernotification($provider_id,$customer_id,$message);
-		 	}
-
-		   	$response["error"]				= 0;	
-			$response["success"]			= 1;
-			$response["message"]			= "Success";
-			$response["data"]				= $res;
-		   	echo json_encode($response); 
-		}
-		else
-		{
-			$response["error"]				= 1;	
+			$response["error"]				= 2;	
 			$response["success"]			= 0;
-			$response["message"]			= "Error occur! try again";
-			$response["data"]				= [];
-		    echo json_encode($response); 
-		}
-	   	
+			$response["message"]			= "Access Denied";
+			echo json_encode($response);
+		}	   	
 	}
 	// hello
 	public function order_list_booking()

@@ -115,44 +115,44 @@ class Communication_model extends CI_Model
 
     public function SentReviewByEmail($data)  //Review send to the provider 
     {
-        $customer_id      = $data['customer_id'];
-        $provider_id      = $data['provider_id'];
+        $sender_id        = $data['customer_id'];
+        $receiver_id      = $data['provider_id'];
         $rating           = $data['rating'];
         $comment          = $data['comment'];
-        $check=$this->db->get_where('registration',array('id'=>$customer_id));
-        $provider_details=$this->db->get_where('registration',array('id'=>$provider_id));
-        $count=$check->num_rows();     
+        $sender    = $this->db->get_where('registration',array('id'=>$sender_id));
+        $receiver  = $this->db->get_where('registration',array('id'=>$receiver_id));
+        $count     = $receiver->num_rows();     
         //print_r($count);die(); 
         if($count>0)
         {
-           $customerDe     = $check->row();
-           $providerDe     = $provider_details->row();
-           $customer_email = $customerDe->email;
-           $provider_email = $providerDe->email;
-           $provider_name  = $providerDe->first_name.' '.$providerDe->last_name;
-           $customer_name  = $customerDe->first_name.' '.$customerDe->last_name;
-           $subject  = "Nytt omdöme";
-           $config= $this->mailconfig();
+           $receiverde      = $receiver->row();
+           $senderde        = $sender->row();
+           $receiver_email  = $receiverde->email;
+           $receiver_name   = $receiverde->first_name.' '.$receiverde->last_name;
+           $sender_email    = $senderde->email;
+           $sender_name     = $senderde->first_name.' '.$senderde->last_name;
+           $subject         = "Nytt omdöme";
+           $config          = $this->mailconfig();
            $this->load->library('email');
            $this->email->initialize($config);
-           $message   = 'Hej '.$provider_name.','."\r\n\r\n";
-           $message  .=  $customer_name. ' has given follwoing review and rating on your prform services :-'."\r\n";
+           $message   = 'Hej '.$receiver_name.','."\r\n\r\n";
+           $message  .=  $sender_name. ' har gett dig ett omdöme och rating på dina utförda tjänster :-'."\r\n";
            $message  .= 'omdöme : '. $comment."\r\n";  
            $message  .= 'Betyg : '. $rating."\r\n";  
-           $message  .= 'Kundens email : '.$customer_email."\r\n";
-           $message  .= 'Kontaktnummer : '.$customerDe->mobile."\r\n\r\n\r\n";  
+           $message  .= 'Kundens email : '.$sender_email."\r\n";
+           $message  .= 'Kontaktnummer : '.$senderde->mobile."\r\n\r\n\r\n";  
            $message  .= 'Med vänliga hälsningar, Syplo!';           
            //print_r($message); 
            $this->email->set_newline("\r\n");
            $this->email->from('info@syplo.se','Syplo'); 
-           $this->email->to($provider_email);
+           $this->email->to($receiver_email);
            $this->email->subject($subject);
            $this->email->message($message);
            $this->email->send();
         }
     }
 
-    public function SentReviewToCustomer($data)  //Review send to the customer 
+    /*public function SentReviewToCustomer($data)  //Review send to the customer 
     {
         $customer_id      = $data['customer_id'];
         $provider_id      = $data['provider_id'];
@@ -187,9 +187,16 @@ class Communication_model extends CI_Model
            $this->email->to($customer_email);
            $this->email->subject($subject);
            $this->email->message($message);
-           $this->email->send();
+           if($this->email->send())
+          {
+             echo "send";
+          }
+          else
+          {
+            echo "not send";
+          }
         }
-    }
+    }*/
 
     public function SentOrderBillByEmail($order_id,$order_details,$services,$Emailmessage)  //For customer 
     {

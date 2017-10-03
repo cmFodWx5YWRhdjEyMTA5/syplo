@@ -235,15 +235,14 @@ class Registration_model extends CI_Model
             $config= $this->mailconfig();
             $this->load->library('email');
             $this->email->initialize($config);
-            $message = 'Hi,'."\r\n\r\n";
-            $message .= 'I have received request for forget password. The passowrd for syplo account is '  .$result->password.'.'."\r\n\r\n";
-            $message .= "Regards,"."\r\n"; 
-            $message .= "Syplo Customer Support,"."\r\n"; 
+            $message  = 'Hej! '."\r\n\r\n";
+            $message .= 'Du har angett att du glömt ditt lösenord. Ditt lösenord är-  "'  .$result->password.'".'."\r\n\r\n";
+            $message .= "Med vänliga hälsningar, Syplo,"."\r\n"; 
             $message .= "info@syplo.se"."\r\n";
             $this->email->set_newline("\r\n");
             $this->email->from('info@syplo.se'); 
             $this->email->to($result->email);
-            $this->email->subject('Forget Passwoord');
+            $this->email->subject('Glömt lösenord');
             $this->email->message($message);
             if($this->email->send())
             {
@@ -258,7 +257,7 @@ class Registration_model extends CI_Model
         {
             $response['error']=1;
             $response['success']=0;
-            $response['message']="This email Id not found! Please enter correct email id";
+            $response['message']="Denna email finns inte! Vänligen ange korrekt email";
             echo json_encode($response);
             exit;
         }
@@ -277,15 +276,14 @@ class Registration_model extends CI_Model
             $config= $this->mailconfig();
             $this->load->library('email');
             $this->email->initialize($config);
-            $message = 'Hi,'."\r\n\r\n";
-            $message .= 'I have received request for forget password. The passowrd for syplo account is: '  .$result->password.'.'."\r\n\r\n";
-            $message .= "Regards,"."\r\n"; 
-            $message .= "Syplo Customer Support,"."\r\n"; 
+            $message = 'Hej! '."\r\n\r\n";
+            $message .= 'Du har angett att du glömt ditt lösenord. Ditt lösenord är:  "' .$result->password.'".'."\r\n\r\n";
+            $message .= "Med vänliga hälsningar, Syplo,"."\r\n"; 
             $message .= "info@syplo.se"."\r\n";
             $this->email->set_newline("\r\n");
             $this->email->from('info@syplo.se','Syplo'); 
             $this->email->to($result->email);
-            $this->email->subject('Forget Passwoord');
+            $this->email->subject('Glömt lösenord');
             $this->email->message($message);
             if($this->email->send())
             {
@@ -300,7 +298,7 @@ class Registration_model extends CI_Model
         {
             $response['error']=1;
             $response['success']=0;
-            $response['message']="This User Id is not found! Please enter correct details";
+            $response['message']="Användaren finns inte! Vänligen ange korrekta uppgifter.";
             echo json_encode($response);
             exit;
         }

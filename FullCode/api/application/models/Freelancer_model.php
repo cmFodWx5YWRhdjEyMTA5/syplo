@@ -517,6 +517,7 @@ class Freelancer_model extends CI_Model
         }
     }
 
+
     public function Other_BasicUpdate($user_id,$data)
     {
         $this->db->where('id',$user_id);
@@ -553,6 +554,11 @@ class Freelancer_model extends CI_Model
         {
             return false;
         }        
+    }
+
+     public function deleteCustomerAddress($user_id)
+    {
+        $this->db->delete('workarea',array('user_id'=>$user_id));
     }
     
     public function imageDelete($id,$user_id)
