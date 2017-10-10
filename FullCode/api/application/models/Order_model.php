@@ -520,7 +520,16 @@ class Order_model extends CI_Model
 	public function order_history($user_id)
 	{
         $this->db->order_by('id','DESC');
-		return $order=$this->db->get_where('order',array('customer_id'=>$user_id,'order_status'=>'1'))->result();
+        $where = '(order_status="1" or approve_status = "2")';
+        $this->db->where('customer_id',$user_id);
+        $this->db->where($where);
+        $this->db->from('order');
+        $order=$this->db->get()->result();
+        return $order;
+
+        /*$this->db->order_by('id','DESC');
+        $where = '(order_status="1" or approve_status = "2")';
+		return $order=$this->db->get_where('order',array('customer_id'=>$user_id,'order_status'=>'1'))->result();*/
 	}
 
     public function checkReviewStatus($order_id,$giver_id)

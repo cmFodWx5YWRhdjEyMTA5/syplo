@@ -212,6 +212,8 @@ class Freelancer extends CI_Controller {
 		        	}
 
 			        $customer_profile  = $this->Freelancer_model->customer_profile($cust_id);
+			        if(!empty($customer_profile))
+			        {
 					if($customer_profile->acceptance==0)
 		   		 	{ $acceptance='Instant';}
 		   		 	else
@@ -245,6 +247,7 @@ class Freelancer extends CI_Controller {
 					'another_service'=>$anoservices_detail
 					);
 					$req_details=''; $anoservices_detail='';
+					}
 			 	}
 		     	$response["error"]				= 0;	
 				$response["success"]			= 1;
