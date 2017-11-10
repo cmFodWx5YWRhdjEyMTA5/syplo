@@ -493,11 +493,11 @@ class Freelancer extends CI_Controller {
 		if(isset($_POST['user_id']) && $_POST['user_id']!='')
 		{
 			extract($_POST);			
-			$user_id    = $_POST['user_id'];
-			$days		= $_POST['days'];
-			$updateDay  = explode(',', $days);
+			$user_id    		= $_POST['user_id'];
+			$days				= $_POST['days'];
+			$updateDay  		= explode(',', $days);
 			//$updateDay  = json_decode($days,true);
-			$add_accept 	   = $_POST['address_acceptance']; // 1 or 2
+			$add_accept 	    = $_POST['address_acceptance']; // 1 or 2
 			$area				= $_POST['customer_addresses'];
     		$customer_addresses	= json_decode($area);
     		$update_at			= date('Y-m-d h:i:s');

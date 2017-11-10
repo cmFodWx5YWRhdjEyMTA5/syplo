@@ -114,6 +114,7 @@ class Order_model extends CI_Model
         //print_r($actual);die();
         return $actual;
     }
+    
     //Check Provider is not book at given date and time Start
     public function checkOrderTime($Ids,$date,$times)
     {
