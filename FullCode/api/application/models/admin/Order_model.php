@@ -8,6 +8,7 @@ class Order_model extends CI_Model
     }
 	public function Get_all_order()
    	{
+        $userdata=array();
 		$this->db->order_by("id","desc");
  		$data=$this->db->get_where('order')->result(); 
         //echo json_encode($data);die();

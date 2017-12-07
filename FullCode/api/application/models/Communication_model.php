@@ -641,4 +641,5 @@ class Communication_model extends CI_Model
             }*/
         }       
     }
+
 }

@@ -18,7 +18,8 @@ class Admin extends CI_Controller
 			extract($_POST);       
 			$email = $this->input->post('email');
 			$password = $this->input->post('password');
-			$data=array('email' => $email, 'password' =>$password);
+      $enpass = md5($password);
+			$data=array('email' => $email, 'password' =>$enpass);
 			$res=$this->Admin_model->login($data);
 			if($res)
 			{
@@ -61,48 +62,50 @@ class Admin extends CI_Controller
     	}
   	}
 
-  	public function change_password()
+  public function change_password()
 	{
 	    $data=new stdClass();
 	    if(isset($_POST['submit']))
 	    { 
-			$id=$this->input->post('id');
-			//echo $id;die();
-			$status=$this->input->post('status');
-			$old_password=$this->input->post('old_password');
-			$password=$this->input->post('password');
-      		$confirm_password=$this->input->post('confirm_password');
-			if($password !=$confirm_password)
-            {
-                $data->error=1;
-                $data->success=0;
-                $data->id=$id;
-                $data->status=$this->session->userdata('status');
-                $data->message="Confirm password does not match";
-                $this->load->view('change_password',$data);  
-            }
-            else
-            {
-            	$rr=$this->Admin_model->change_password($old_password,$password,$id);    
-                if($rr)
-                {
-                    $data->error=0;
-                    $data->success=1;
-                    $data->id=$id;
-                    $data->status=$this->session->userdata('status');
-                    $data->message="Password has been updated successful !";
-                    $this->load->view('change_password',$data);
-                }
-                else
-                {
-                    $data->error=1;
-                    $data->success=0;
-                    $data->id=$id;
-                    $data->status=$this->session->userdata('status');
-                    $data->message="Old Password not found! Please Enter correct old password";
-                    $this->load->view('change_password',$data);
-                }
-            }
+  			$id=$this->input->post('id');
+  			//echo $id;die();
+  			$status=$this->input->post('status');
+  			$old_password=$this->input->post('old_password');        
+  			$password=$this->input->post('password');
+        $old_password = md5($old_password);
+        $pasword = md5($password);
+        $confirm_password=$this->input->post('confirm_password');
+			  if($password !=$confirm_password)
+        {
+            $data->error=1;
+            $data->success=0;
+            $data->id=$id;
+            $data->status=$this->session->userdata('status');
+            $data->message="Confirm password does not match";
+            $this->load->view('change_password',$data);  
+        }
+        else
+        {
+        	$rr=$this->Admin_model->change_password($old_password,$pasword,$id);    
+          if($rr)
+          {
+              $data->error=0;
+              $data->success=1;
+              $data->id=$id;
+              $data->status=$this->session->userdata('status');
+              $data->message="Password has been updated successful !";
+              $this->load->view('change_password',$data);
+          }
+          else
+          {
+              $data->error=1;
+              $data->success=0;
+              $data->id=$id;
+              $data->status=$this->session->userdata('status');
+              $data->message="Old Password not found! Please Enter correct old password";
+              $this->load->view('change_password',$data);
+          }
+        }
 	    }
 	    else
 	    {
@@ -178,12 +181,89 @@ class Admin extends CI_Controller
   }
 
 
-  	public function logout()
+  public function logout()
 	{
 		$data=new stdClass();
 		$this->session->sess_destroy();
 		$this->load->view('login');
 	}
+
+  public function Forget_password()
+  {
+    if($this->input->post('forget'))
+    {
+      $email=$this->input->post('email');
+      $res=$this->Admin_model->forget_password($email);
+      if($res)
+      {
+        $data=new stdClass();
+        $data->error=0;
+        $data->success=1;
+        $data->message="Please Check your email_id, Confirmation Link send to " .$email;;
+        $this->load->view('forget_password',$data);
+      }
+      else
+      {
+        $data=new stdClass();
+        $data->error=1;
+        $data->success=0;
+        $data->message="Error occur! Please try again";
+        $this->load->view('forget_password',$data);
+      }
+    }
+    else
+    {
+      $this->load->view('forget_password');  
+    }  
+  }
+
+ 
+  public function ResetPassword()
+  {
+    $data=new stdClass();
+    $email=$_GET['em'];
+    if($this->input->post('change'))
+    {
+      extract($_POST);
+      if($new_password !=$confirm_password)
+      {
+        $data->error=1;
+        $data->success=0;
+        $data->email=$email;
+        $data->message="New Password and Confirm password must be same";
+        $this->load->view('recover_password',$data);  
+      }
+      else
+      {
+        $enpass= md5($new_password);
+        $res=$this->Admin_model->recover_password($enpass,$email);
+        if($res!=false)
+        {
+          $data->error=0;
+          $data->success=1;
+          $data->email=$email;
+          $data->message="Password Reset successfull";
+          $this->load->view('recover_password',$data);
+        }
+        else
+        {
+          $data->error=0;
+          $data->success=1;
+          $data->email=$email;
+          $data->message="Password not Reset, Please Try again";
+          $this->load->view('recover_password',$data);
+        }
+      }
+    }
+    else
+    {
+      $data->email=$email;
+      $this->load->view('recover_password',$data);
+    }
+  }
+  
+
+
 	
 }
 	

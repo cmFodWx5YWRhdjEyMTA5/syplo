@@ -388,57 +388,72 @@ class Freelancer_model extends CI_Model
         {
            $q1= $this->db->get_where('registration',array('email'=>$email,'user_type'=>$currenty_type))->row();
            //print_r($q1->password);die();
-            if($query->row()->password==$q1->password)
+            if($query->row()->approve_status==1)
             {
-                $id = $query->row()->id;
-                $r1 = $this->db->get_where('registration', array('id'=>$id))->row();
-                if($r1)
+                if($query->row()->password==$q1->password)
                 {
-                    //print_r($r1);die();
-                    $device_token = $q1->device_token;
-                    $id = $r1->id;
-                    $this->db->where('id',$id);
-                    $update =$this->db->update('registration',array('device_token'=>$device_token));
-                    $r2 = $this->db->get_where('accountdetails', array('user_id'=>$id))->result();
-                    $data= array(
-                            "u" =>$r1,
-                            "a" =>$r2
-                            ); 
-                $response["error"]              = 0;    
-                $response["success"]            = 1;
-                $response["message"]            = "success";
-                $image = base_url().'upload/'.$data['u']->user_image;
-                $response["data"]["user_image"]         = $image;
-                $response["data"]["user_id"]            = $data['u']->id;
-                $response["data"]["user_type"]          = $data['u']->user_type;    
-                $response["data"]["device_token"]       = $data['u']->device_token; 
-                $response["data"]["company_name"]       = $data['u']->company_name;
-                $response["data"]["reg_no"]             = $data['u']->registration_no;
-                $response["data"]["first_name"]         = $data['u']->first_name;
-                $response["data"]["last_name"]          = $data['u']->last_name;
-                $response["data"]["dob"]                = $data['u']->dob;
-                $response["data"]["address"]            = $data['u']->address;
-                $response["data"]["lat"]                = $data['u']->lat;
-                $response["data"]["long"]               = $data['u']->long;         
-                $response["data"]["mobile"]             = $data['u']->mobile;
-                $response["data"]["email"]              = $data['u']->email;
-                $response["data"]["password"]           = $data['u']->password;
-                $response["data"]["gender"]             = $data['u']->gender;
-                $response["data"]["about"]              = $data['u']->about;
-                $response["data"]["address_acceptance"] = $data['u']->address_acceptance; 
-                $response["data"]["availability"]       = $data['u']->availability;     
-                $response["data"]["canceling_policy"]   = $data['u']->canceling_policy; 
-                $response["data"]["acceptance"]         = $data['u']->acceptance;       
-                $response["data"]["seen_status"]        = $data['u']->seen_status; // 0=not, 1=yes
-                $response["data"]["approv_status"]      = $data['u']->approve_status;       
-                $response["account"]                    = $data['a'];
-                echo json_encode($response);exit;         
+                    $id = $query->row()->id;
+                    $r1 = $this->db->get_where('registration', array('id'=>$id))->row();
+                    if($r1)
+                    {
+                        //print_r($r1);die();
+                        $device_token = $q1->device_token;
+                        $id = $r1->id;
+                        $this->db->where('id',$id);
+                        $update =$this->db->update('registration',array('device_token'=>$device_token));
+                        $r2 = $this->db->get_where('accountdetails', array('user_id'=>$id))->result();
+                        $data= array(
+                                "u" =>$r1,
+                                "a" =>$r2
+                                ); 
+                        $response["error"]              = 0;    
+                        $response["success"]            = 1;
+                        $response["message"]            = "success";
+                        $image = base_url().'upload/'.$data['u']->user_image;
+                        $response["data"]["user_image"]         = $image;
+                        $response["data"]["user_id"]            = $data['u']->id;
+                        $response["data"]["user_type"]          = $data['u']->user_type;    
+                        $response["data"]["device_token"]       = $data['u']->device_token; 
+                        $response["data"]["company_name"]       = $data['u']->company_name;
+                        $response["data"]["reg_no"]             = $data['u']->registration_no;
+                        $response["data"]["first_name"]         = $data['u']->first_name;
+                        $response["data"]["last_name"]          = $data['u']->last_name;
+                        $response["data"]["dob"]                = $data['u']->dob;
+                        $response["data"]["address"]            = $data['u']->address;
+                        $response["data"]["lat"]                = $data['u']->lat;
+                        $response["data"]["long"]               = $data['u']->long;         
+                        $response["data"]["mobile"]             = $data['u']->mobile;
+                        $response["data"]["email"]              = $data['u']->email;
+                        $response["data"]["password"]           = $data['u']->password;
+                        $response["data"]["gender"]             = $data['u']->gender;
+                        $response["data"]["about"]              = $data['u']->about;
+                        $response["data"]["address_acceptance"] = $data['u']->address_acceptance; 
+                        $response["data"]["availability"]       = $data['u']->availability;     
+                        $response["data"]["canceling_policy"]   = $data['u']->canceling_policy; 
+                        $response["data"]["acceptance"]         = $data['u']->acceptance;       
+                        $response["data"]["seen_status"]        = $data['u']->seen_status; // 0=not, 1=yes
+                        $response["data"]["approv_status"]      = $data['u']->approve_status;       
+                        $response["account"]                    = $data['a'];
+                        echo json_encode($response);exit;         
+                    }
+                    else
+                    {
+                        return $count;
+                    }
+                }
+                else
+                {
+                    return $count;
                 }
             }
             else
             {
-                return $count;
-            }
+                $response["error"]          = 2;    
+                $response["success"]        = 0;
+                $response["message"]        = "User is not approved by syplo admin.";
+                echo json_encode($response);
+                exit;
+            }    
         }
         else
         {

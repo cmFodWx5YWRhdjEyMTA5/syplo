@@ -163,8 +163,7 @@ class Company extends CI_Controller {
 		}
 		else
 		{
-			$data->error=0;
-			$data->success=1;
+			$data->error=1;
 			$data->message="Member is not available!";
 			$data->members_data=$members;
     		$this->load->view('allMember',$data); 
